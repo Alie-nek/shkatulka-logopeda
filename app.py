@@ -448,8 +448,26 @@ def create_admin():
         return f"Ошибка: {e}"
 
     
-if __name__ == '__main__':
+def create_tables():
     with app.app_context():
         db.create_all()
+        print("Таблицы успешно созданы!")
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        print(f"Существующие таблицы: {tables}")
+
+@app.route('/check-db')
+def check_db():
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        return f"Таблицы в БД: {tables}"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+if __name__ == '__main__':
+    create_tables()
     port = int(os.getenv('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
