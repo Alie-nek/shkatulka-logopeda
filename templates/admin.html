@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет автора{% endblock %}
+{% block content %}
+<div class="admin-container">
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="products">Мои пособия</button>
+        <button class="tab-btn" data-tab="orders">Мои заказы</button>
+    </div>
+    
+    <div id="products" class="tab-content active">
+        <button id="addProductBtn" class="btn-add-product">+ Добавить пособие</button>
+        <table class="admin-table">
+            <thead>
+                <tr><th>ID</th><th>Название</th><th>Цена</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.title }}</td>
+                    <td>{{ p.price }} ₽</td>
+                    <td>
+                        <button class="btn-edit" data-id="{{ p.id }}">Редактировать</button>
+                        <button class="btn-delete" data-id="{{ p.id }}">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="orders" class="tab-content">
+    <table class="admin-table">
+        <thead>
+            <tr><th>Дата</th><th>Название пособия</th><th>Покупатель</th><th>Сумма</th></tr>
+        </thead>
+        <tbody>
+            {% if orders %}
+                {% for order_dict in orders %}
+                    {% for item in order_dict.product_items %}  
+                    <tr>
+                        <td>{{ order_dict.order.order_date.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ item.product.title }}</td>
+                        <td>{{ order_dict.order.customer_email }}</td>
+                        <td>{{ item.price * item.quantity }} ₽</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="4" style="text-align: center;">Нет оформленных заказов</td>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h3 id="modalTitle">Добавление пособия</h3>
+        <form id="productForm" enctype="multipart/form-data">
+            <input type="hidden" id="productId">
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea id="description" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Категория</label>
+                <select id="category" required>
+                    <option value="zvuki">Автоматизация звуков</option>
+                    <option value="leksika">Лексическая тема</option>
+                    <option value="slogovaia">Формирование слоговой структуры слова</option>
+                    <option value="rech">Запуск речи</option>
+                    <option value="work-programm">Рабочая программа учителя-логопеда</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Цена (₽)</label>
+                <input type="number" id="price" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>PDF-файл</label>
+                <input type="file" id="pdfFile" accept=".pdf">
+            </div>
+            <div class="form-group">
+                <label>Обложка</label>
+                <input type="file" id="imageFile" accept="image/*">
+                </div>
+            <div class="modal-buttons">
+                <button type="submit" class="btn-save-modal">Сохранить</button>
+                <button type="button" id="cancelModalBtn" class="btn-cancel-modal">Отмена</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    const modal = document.getElementById('productModal');
+    const addBtn = document.getElementById('addProductBtn');
+    const closeModal = document.querySelector('.modal-close');
+    const cancelModal = document.getElementById('cancelModalBtn');
+    
+    function openModal(editing = false, data = null) {
+        document.getElementById('modalTitle').innerText = editing ? 'Редактирование пособия' : 'Добавление пособия';
+        if (editing && data) {
+            document.getElementById('productId').value = data.id;
+            document.getElementById('title').value = data.title;
+            document.getElementById('description').value = data.description;
+            document.getElementById('category').value = data.category;
+            document.getElementById('price').value = data.price;
+        } else {
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+        }
+        modal.style.display = 'flex';
+    }
+    
+    function closeModalFunc() { modal.style.display = 'none'; }
+    
+    if (addBtn) addBtn.addEventListener('click', () => openModal(false));
+    if (closeModal) closeModal.addEventListener('click', closeModalFunc);
+    if (cancelModal) cancelModal.addEventListener('click', closeModalFunc);
+    
+    document.getElementById('productForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('title', document.getElementById('title').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('category', document.getElementById('category').value);
+        formData.append('price', document.getElementById('price').value);
+        const pdfFile = document.getElementById('pdfFile').files[0];
+        const imgFile = document.getElementById('imageFile').files[0];
+        if (pdfFile) formData.append('pdf_file', pdfFile);
+        if (imgFile) formData.append('image_file', imgFile);
+        const productId = document.getElementById('productId').value;
+        if (productId) formData.append('id', productId);
+        const response = await fetch('/api/admin/products', { method: productId ? 'PUT' : 'POST', body: formData });
+        const result = await response.json();
+        if (result.success) {
+            alert('Сохранено!');
+            location.reload();
+        } else alert('Ошибка');
+    });
+
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const resp = await fetch('/api/admin/products');
+            const products = await resp.json();
+            const product = products.find(p => p.id == btn.dataset.id);
+            if (product) openModal(true, product);
+        });
+    });
+    
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Удалить пособие?')) return;
+            await fetch(`/api/admin/products?id=${btn.dataset.id}`, { method: 'DELETE' });
+            location.reload();
+        });
+    });
+</script>
+{% endblock %}

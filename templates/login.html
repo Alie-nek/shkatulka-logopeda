@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<div id="frame">
+    <span id="rr">Войти</span>
+    <form id="reg" method="POST" action="{{ url_for('login') }}">
+        <h2 id="email">Email</h2>
+        <input type="email" name="email" required>
+        <h2 id="pass">Пароль</h2>
+        <input type="password" name="password" required>
+        <button id="avt" type="submit">Войти</button>
+    </form>
+    <small id="infreg">Нет аккаунта? <a id="regis" href="{{ url_for('register') }}">Зарегистрироваться</a></small>
+</div>
+{% endblock %}

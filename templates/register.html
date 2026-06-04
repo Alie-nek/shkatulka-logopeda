@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+<div id="frame">
+    <span id="rr">Регистрация</span>
+    <form id="reg" method="POST" action="{{ url_for('register') }}">
+        <h2 id="email">Email</h2>
+        <input type="email" name="email" required>
+        <h2 id="pass">Пароль</h2>
+        <input type="password" name="password" required>
+        <h2 id="pass2">Повторите пароль</h2>
+        <input type="password" name="confirm_password" required>
+        <button id="avt" type="submit">Создать аккаунт</button>
+    </form>
+    <small id="infreg">Уже есть аккаунт? <a id="regis" href="{{ url_for('login') }}">Войти</a></small>
+</div>
+{% endblock %}

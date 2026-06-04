@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Шкатулка логопеда — Каталог{% endblock %}
+{% block content %}
+<div id="inf">
+    <img id="image" src="{{ url_for('static', filename='img/image.jpg') }}">
+    <div class="inf-content">
+        <span class="inf-title">Шкатулка логопеда</span>
+        <p class="inf-description">Интернет-магазин авторских пособий  для учителей-логопедов и дефектологов, родителей детей-дошкольников.</p>
+    </div>
+</div>
+
+<div id="search">
+    <form class="search-form" id="searchForm">
+        <input type="text" id="searchInput" placeholder="Поиск пособий...">
+        <button id="search-fo" type="submit"></button>
+    </form>
+    <div class="filter-wrapper">
+        <span class="filter-label">Фильтр по темам:</span>
+        <div class="dropdown" id="dropdown">
+            <button class="dropdown-btn" id="dropdownBtn">
+                <span id="selectedTheme">Все темы</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <ul class="dropdown-menu" id="dropdownMenu">
+                <li data-value="all" class="active">Все темы</li>
+                <li data-value="zvuki">Автоматизация звуков</li>
+                <li data-value="leksika">Лексическая тема</li>
+                <li data-value="slogovaia">Формирование слоговой структуры слова</li>
+                <li data-value="rech">Запуск речи</li>
+                <li data-value="work-programm">Рабочая программа учителя-логопеда</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="catalogContainer" class="catalog-container">
+    <div class="loading">Загрузка...</div>
+</div>
+{% endblock %}

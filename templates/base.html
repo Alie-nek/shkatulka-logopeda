@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Шкатулка логопеда{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('index') }}" id="logo">
+            <img id="log" src="{{ url_for('static', filename='img/logo.png') }}">
+            <span>Шкатулка логопеда</span>
+        </a>
+        <nav>
+            <a href="{{ url_for('index') }}">Каталог</a>
+            
+            {% if session.user_role != 'author' %}
+            <div class="cart-container">
+                <a href="{{ url_for('cart') }}" class="cart-link">
+                    <span>Корзина</span>
+                    <span class="cart-counter" id="cartCounter">0</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if session.user_id %}
+                {% if session.user_role == 'author' %}
+                    <a href="{{ url_for('admin') }}">Личный кабинет</a>
+                {% else %}
+                    <a href="{{ url_for('profile') }}">Личный кабинет</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}">Выйти</a>
+            {% else %}
+                <a href="{{ url_for('register') }}">Регистрация</a>
+                <a href="{{ url_for('login') }}">Войти</a>
+            {% endif %}
+        </nav>
+    </header>
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Шкатулка логопеда</h3>
+                <p>Авторские пособия для логопедов и дефектологов</p>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p><i class="fas fa-envelope"></i> <a href="mailto:mari.novoselova.0@mail.ru">mari.novoselova.0@mail.ru</a></p>
+                <p><i class="fab fa-vk"></i> <a href="https://vk.com/club117483552" target="_blank">vk.com/shkatulka_logopeda</a></p>
+            </div>
+            <div class="footer-section">
+                <h3>Информация</h3>
+                <p>© 2026 Шкатулка логопеда</p>
+                <p>Все права защищены</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
