@@ -123,14 +123,27 @@ def index():
 @app.route('/api/products')
 def api_products():
     products = Product.query.all()
-    return jsonify([{
-        'id': p.id,
-        'title': p.title,
-        'description': p.description[:100],
-        'category': p.category,
-        'price': float(p.price),
-        'image': p.image_path.replace('\\', '/') if p.image_path else 'static/img/placeholder.jpg'  
-    } for p in products])
+    products_list = []
+    for p in products:
+        try:
+            if p.image_path and p.image_path.strip():
+                image = p.image_path.replace('\\', '/')
+            else:
+                image = '/static/img/placeholder.jpg'
+            
+            products_list.append({
+                'id': p.id,
+                'title': p.title or 'Без названия',
+                'description': (p.description[:100] if p.description else 'Описание отсутствует'),
+                'category': p.category or 'other',
+                'price': float(p.price) if p.price else 0,
+                'image': image
+            })
+        except Exception as e:
+            print(f"Ошибка при обработке товара {p.id}: {e}")
+            continue  
+    
+    return jsonify(products_list)
 
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
