@@ -418,6 +418,22 @@ def admin_products_api():
             db.session.delete(product)
             db.session.commit()
         return jsonify({'success': True})
+
+@app.route('/create-author')
+def create_admin():
+    try:
+        user = User.query.filter_by(role='author').first()
+        if not user:
+            user = User(email="mariinovoselova@yandex.ru", role="author")
+            user.set_password("admin123")
+            db.session.add(user)
+            db.session.commit()
+            return "Автор создан"
+        else:
+            return f"Автор уже существует: {user.email}"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
     
 if __name__ == '__main__':
     with app.app_context():
