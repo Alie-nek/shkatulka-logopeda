@@ -432,38 +432,31 @@ def admin_products_api():
             db.session.commit()
         return jsonify({'success': True})
 
-@app.route('/create-author')
+@app.route('/create-tables')
+def create_tables():
+    try:
+        db.create_all()
+        return "Таблицы успешно созданы!"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+@app.route('/create-admin')
 def create_admin():
     try:
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        if 'users' not in inspector.get_table_names():
+            return "Сначала создайте таблицы через /create-tables"
+        
         user = User.query.filter_by(role='author').first()
         if not user:
-            user = User(email="mariinovoselova@yandex.ru", role="author")
+            user = User(email="mari.novoselova.0@mail.ru", role="author")
             user.set_password("admin123")
             db.session.add(user)
             db.session.commit()
             return "Автор создан"
         else:
             return f"Автор уже существует: {user.email}"
-    except Exception as e:
-        return f"Ошибка: {e}"
-
-    
-def create_tables():
-    with app.app_context():
-        db.create_all()
-        print("Таблицы успешно созданы!")
-        from sqlalchemy import inspect
-        inspector = inspect(db.engine)
-        tables = inspector.get_table_names()
-        print(f"Существующие таблицы: {tables}")
-
-@app.route('/check-db')
-def check_db():
-    try:
-        from sqlalchemy import inspect
-        inspector = inspect(db.engine)
-        tables = inspector.get_table_names()
-        return f"Таблицы в БД: {tables}"
     except Exception as e:
         return f"Ошибка: {e}"
 
